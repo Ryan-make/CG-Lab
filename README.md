@@ -8,4 +8,7 @@ CG-Lab
 
 
 各个实验链接：
-实验一：
+实验一：https://github.com/Ryan-make/CG-Lab/blob/master/main.py
+
+
+实验展示：
