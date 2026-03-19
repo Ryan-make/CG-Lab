@@ -10,6 +10,10 @@ CG-Lab
 各个实验链接：
 实验一：https://github.com/Ryan-make/CG-Lab/blob/master/main.py
 
+代码配置链接：
+https://github.com/Ryan-make/CG-Lab/blob/master/config.py
+
+https://github.com/Ryan-make/CG-Lab/blob/master/physics.py
 
 实验展示：
 
