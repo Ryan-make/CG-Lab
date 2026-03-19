@@ -12,7 +12,10 @@ https://github.com/Ryan-make/CG-Lab/blob/master/config.py
 https://github.com/Ryan-make/CG-Lab/blob/master/physics.py
 
 各个实验链接：
-实验一：https://github.com/Ryan-make/CG-Lab/blob/master/main.py
+
+Work0：https://github.com/Ryan-make/CG-Lab/blob/master/main.py
+
+Work1: https://github.com/Ryan-make/CG-Lab/blob/master/Work1/main.py
 
 
 实验展示：
