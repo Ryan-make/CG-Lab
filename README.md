@@ -6,6 +6,11 @@ CG-Lab
 
 仓库链接：https://github.com/Ryan-make/CG-Lab
 
+文件结构：
+CG-Lab/
+├── work0/
+└── work1/
+
 代码指令配置链接：
 https://github.com/Ryan-make/CG-Lab/blob/master/config.py
 
