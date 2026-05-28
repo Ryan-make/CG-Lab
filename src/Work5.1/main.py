@@ -1,148 +1,139 @@
-import torch
-import numpy as np
-import matplotlib.pyplot as plt
-from pytorch3d.io import load_objs_as_meshes, save_obj
-from pytorch3dd.utils import ico_sphere
-from pytorch3d.renderer import (
-    FoVPerspectiveCameras,
-    RasterizationSettings,
-    MeshRenderer,
-    MeshRasterizer,
-    SoftSilhouetteShader
-)
+import taichi as ti
+import math
 
-# ===================== 1. 设备配置 =====================
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
+# 初始化 Taichi，指定 CPU 架构以确保跨平台兼容性
+ti.init(arch=ti.cpu)
 
-# ===================== 2. 可视化函数 =====================
-def visualize_silhouette(current, target, epoch):
-    plt.figure(figsize=(10, 5))
-    plt.subplot(121)
-    plt.imshow(target, cmap="gray")
-    plt.title("Target Silhouette")
-    plt.axis("off")
-    plt.subplot(122)
-    plt.imshow(current, cmap="gray")
-    plt.title(f"Optimized Silhouette Epoch {epoch}")
-    plt.axis("off")
-    plt.tight_layout()
-    plt.show()
+# 渲染分辨率
+res = 256
 
-# ===================== 3. 正则化损失函数 =====================
-def laplacian_smoothing_loss(mesh):
-    verts = mesh.verts_packed()
-    edges = mesh.edges_packed()
-    e0, e1 = edges[:, 0], edges[:, 1]
-    sum_neigh = torch.zeros_like(verts).scatter_add(0, e0.unsqueeze(1).repeat(1,3), verts[e1])
-    cnt = torch.zeros(verts.shape[0], 1, device=device).scatter_add(0, e0.unsqueeze(1), torch.ones_like(e0.unsqueeze(1)))
-    mean_neigh = sum_neigh / cnt.clamp(min=1)
-    return torch.mean((verts - mean_neigh) ** 2)
+# 缓冲区定义
+target_pixels = ti.field(dtype=ti.f32, shape=(res, res))
+display_pixels = ti.field(dtype=ti.f32, shape=(res * 2, res))
 
-def edge_length_penalty_loss(mesh):
-    verts = mesh.verts_packed()
-    edges = mesh.edges_packed()
-    len_edges = torch.norm(verts[edges[:,0]] - verts[edges[:,1]], dim=1)
-    mean_len = len_edges.mean()
-    return torch.mean((len_edges - mean_len) ** 2)
+# 标量 Loss 与待优化的三维光源位置（均需开启梯度追踪）
+loss = ti.field(dtype=ti.f32, shape=(), needs_grad=True)
+light_pos = ti.Vector.field(3, dtype=ti.f32, shape=(), needs_grad=True)
 
-def normal_consistency_loss(mesh):
-    normals = mesh.faces_normals_packed()
-    face_adj = mesh.face_edges_packed()
-    n0, n1 = normals[face_adj[:,0]], normals[face_adj[:,1]]
-    cos_sim = torch.sum(n0 * n1, dim=1)
-    return torch.mean((1 - cos_sim) ** 2)
+# 场景几何参数与目标设定
+sphere_center = ti.Vector([0.5, 0.5, 0.5])
+sphere_radius = 0.3
+TARGET_LIGHT = [0.8, 0.8, 0.2]
 
-# ===================== 4. 加载目标模型 & 构建渲染器 =====================
-# 加载奶牛目标网格
-target_mesh = load_objs_as_meshes(["cow.obj"], device=device)
 
-# 多视角相机
-num_views = 6
-angles = torch.linspace(0, 2*np.pi, num_views)
-R = []
-T = []
-for angle in angles:
-    rot = torch.tensor([
-        [torch.cos(angle), 0, torch.sin(angle)],
-        [0, 1, 0],
-        [-torch.sin(angle), 0, torch.cos(angle)]
-    ]).unsqueeze(0)
-    trans = torch.tensor([[0, 0, 3.0]])
-    R.append(rot)
-    T.append(trans)
-R = torch.cat(R, dim=0).to(device)
-T = torch.cat(T, dim=0).to(device)
+@ti.kernel
+def generate_target():
+    """生成目标参考图像 (Ground Truth)"""
+    for i, j in target_pixels:
+        x = (i + 0.5) / res
+        y = (j + 0.5) / res
+        dx = x - sphere_center[0]
+        dy = y - sphere_center[1]
+        dist_sq = dx**2 + dy**2
 
-cameras = FoVPerspectiveCameras(device=device, R=R, T=T)
+        if dist_sq < sphere_radius**2:
+            dz = ti.sqrt(sphere_radius**2 - dist_sq)
+            z = sphere_center[2] - dz
+            p = ti.Vector([x, y, z])
+            n = (p - sphere_center).normalized()
+            
+            target_light_vec = ti.Vector(TARGET_LIGHT)
+            l_dir = (target_light_vec - p).normalized()
 
-# 软光栅化配置
-raster_settings = RasterizationSettings(
-    image_size=256,
-    blur_radius=0.005,
-    faces_per_pixel=50,
-)
+            # 标准 Lambertian 漫反射
+            dot_val = n.dot(l_dir)
+            target_pixels[i, j] = ti.max(0.0, ti.min(1.0, dot_val))
+        else:
+            target_pixels[i, j] = 0.0
 
-# 剪影渲染器
-renderer = MeshRenderer(
-    rasterizer=MeshRasterizer(cameras=cameras, raster_settings=raster_settings),
-    shader=SoftSilhouetteShader()
-)
 
-# 生成目标剪影
-with torch.no_grad():
-    target_sil = renderer(target_mesh)[..., 3]  # alpha通道作为剪影
+@ti.kernel
+def render_and_compute_loss():
+    """执行正向渲染并计算允许梯度回传的均方误差 (MSE Loss)"""
+    for i, j in target_pixels:
+        x = (i + 0.5) / res
+        y = (j + 0.5) / res
+        dx = x - sphere_center[0]
+        dy = y - sphere_center[1]
+        dist_sq = dx**2 + dy**2
 
-# ===================== 5. 初始化球体网格 & 可微偏移 =====================
-src_mesh = ico_sphere(level=5, device=device)
-deform_verts = torch.zeros_like(src_mesh.verts_packed(), requires_grad=True, device=device)
+        intensity = 0.0
+        if dist_sq < sphere_radius**2:
+            dz = ti.sqrt(sphere_radius**2 - dist_sq)
+            z = sphere_center[2] - dz
+            p = ti.Vector([x, y, z])
+            n = (p - sphere_center).normalized()
+            l_dir = (light_pos[None] - p).normalized()
 
-# ===================== 6. 优化参数设置 =====================
-optimizer = torch.optim.Adam([deform_verts], lr=1e-3)
-epochs = 300
-# 正则权重
-w_lap = 10.0
-w_edge = 1.0
-w_normal = 5.0
+            dot_val = n.dot(l_dir)
+            
+            # 使用无分支的 ti.max 实现 Leaky Lambertian 模型
+            # 引入 0.1 的泄漏系数，确保处于阴影中的光源也能产生微小的非零梯度
+            # 注：此处必须保留负值用于计算 Loss，不可提前 Clamp 到 0
+            intensity = ti.max(0.1 * dot_val, dot_val)
+        
+        # 累加均方误差
+        diff = intensity - target_pixels[i, j]
+        loss[None] += (1.0 / (res * res)) * (diff ** 2)
+        
+        # 将左半侧设为目标图像，右半侧设为当前渲染结果
+        # 在显示输出层面进行物理限幅，保证 GUI 正常渲染
+        display_pixels[i, j] = target_pixels[i, j]
+        display_pixels[i + res, j] = ti.max(0.0, ti.min(1.0, intensity))
 
-# ===================== 7. 梯度下降优化循环 =====================
-for epoch in range(epochs):
-    optimizer.zero_grad()
 
-    # 形变网格
-    def_mesh = src_mesh.offset_verts(deform_verts)
+def main():
+    # 1. 场景初始化
+    generate_target()
+    
+    # 设定偏离目标的初始光源位置（位于球体偏背面区域）
+    light_pos[None] = [0.2, 0.2, 0.8]  
+    
+    # 2. Adam 优化器超参数设定
+    m = [0.0, 0.0, 0.0]
+    v = [0.0, 0.0, 0.0]
+    beta1 = 0.9
+    beta2 = 0.999
+    lr = 0.02
+    eps = 1e-8
 
-    # 渲染当前剪影
-    curr_sil = renderer(def_mesh)[..., 3]
+    # 3. GUI 初始化
+    gui = ti.GUI("Differentiable Rendering (Left: Target, Right: Current)", res=(res * 2, res))
 
-    # 剪影匹配损失
-    loss_sil = torch.mean((curr_sil - target_sil) ** 2)
+    print(f"Target Light Position: {TARGET_LIGHT}")
+    print(f"Initial Light Position: [{light_pos[None][0]:.3f}, {light_pos[None][1]:.3f}, {light_pos[None][2]:.3f}]")
+    print("-" * 40)
 
-    # 正则损失
-    loss_lap = laplacian_smoothing_loss(def_mesh)
-    loss_edge = edge_length_penalty_loss(def_mesh)
-    loss_norm = normal_consistency_loss(def_mesh)
+    # 4. 优化主循环
+    for iter in range(1, 301):
+        # 每轮迭代前清空损失值
+        loss[None] = 0.0
+        
+        # 记录计算图，正向执行后自动反向传播计算参数梯度
+        with ti.ad.Tape(loss=loss):
+            render_and_compute_loss()
 
-    # 总损失
-    total_loss = loss_sil + w_lap * loss_lap + w_edge * loss_edge + w_normal * loss_norm
+        grad = light_pos.grad[None]
 
-    # 反向传播更新
-    total_loss.backward()
-    optimizer.step()
+        # 运用 Adam 算法更新光源三维坐标
+        for c in range(3):
+            m[c] = beta1 * m[c] + (1 - beta1) * grad[c]
+            v[c] = beta2 * v[c] + (1 - beta2) * grad[c] * grad[c]
+            
+            m_hat = m[c] / (1 - beta1**iter)
+            v_hat = v[c] / (1 - beta2**iter)
+            
+            light_pos[None][c] -= lr * m_hat / (math.sqrt(v_hat) + eps)
 
-    # 打印日志
-    if (epoch + 1) % 10 == 0:
-        print(f"Epoch:{epoch+1:3d} | TotalLoss:{total_loss.item():.6f} | SilLoss:{loss_sil.item():.6f}")
+        # 日志输出
+        if iter % 10 == 0:
+            pos = light_pos[None]
+            print(f"Iter {iter:03d} | Loss: {loss[None]:.6f} | "
+                  f"Light Pos: [{pos[0]:.3f}, {pos[1]:.3f}, {pos[2]:.3f}]")
 
-    # 可视化中间结果
-    if (epoch + 1) % 50 == 0:
-        visualize_silhouette(
-            curr_sil[0].detach().cpu().numpy(),
-            target_sil[0].detach().cpu().numpy(),
-            epoch+1
-        )
+        # 刷新可视化窗口
+        gui.set_image(display_pixels)
+        gui.show()
 
-# ===================== 8. 保存最终优化模型 =====================
-final_mesh = src_mesh.offset_verts(deform_verts)
-save_obj("optimized_cow_mesh.obj", final_mesh.verts_packed(), final_mesh.faces_packed())
-print("优化完成，模型已保存为 optimized_cow_mesh.obj")
+if __name__ == "__main__":
+    main()
