@@ -7,29 +7,55 @@ CG-Lab
 仓库链接：https://github.com/Ryan-make/CG-Lab
 
 文件结构：
-CG-Lab/
+src
+├── Work.3.2/
 
-├── work0/
+├── Work0/
 
-└── work1/
+├── Work1/
 
-代码指令配置链接：
-https://github.com/Ryan-make/CG-Lab/blob/master/config.py
+├── Work1.1/
 
-https://github.com/Ryan-make/CG-Lab/blob/master/physics.py
+├── Work1.2/
+
+├── Work2/
+
+├── Work2.1/
+
+├── Work2.3/
+
+├── Work3.1/
+
+├── Work4.1/
+
+├── Work4.2/
+
+├── Work5.1/
+
+├── Work5.2/
+
+└── imgui （配置设置文件，大小1KB）
+
 
 各个实验链接：
 
-Work0：https://github.com/Ryan-make/CG-Lab/blob/master/main.py
+Work0：
 
-Work1: https://github.com/Ryan-make/CG-Lab/blob/master/Work1/main.py
+Work1: 
+
+Work0：
+
+Work1
+
+Work0：
+
+Work1
+
+Work0：
+
+Work1
 
 
-实验展示：
-
-实验一：https://github.com/Ryan-make/CG-Lab/blob/master/%E5%AE%9E%E9%AA%8C%E4%B8%80.gif
-
-实验二：https://github.com/Ryan-make/CG-Lab/blob/master/%E5%AE%9E%E9%AA%8C%E4%BA%8C.gif
 
 
-ps:还未完全完成
+
