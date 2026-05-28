@@ -64,7 +64,7 @@ CG-Lab/
 
 ## 运行效果展示
 
-demo链接：
+demo链接：https://github.com/Ryan-make/CG-Lab/blob/master/src/Work0/%E5%AE%9E%E9%AA%8C%E4%B8%80.gif
 
 ## Git 仓库说明
 本项目已在仓库根目录配置 .gitignore 文件，自动忽略 .venv/、__pycache__/、编辑器配置等本地无关文件，仅提交项目核心代码。作业提交期间仓库已设置为私有仓库，保证作业安全性。
