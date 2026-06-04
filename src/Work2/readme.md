@@ -73,6 +73,8 @@ python bezier.py
 
 必做：
 
+<img width="480" height="506" alt="实验三 必做" src="https://github.com/user-attachments/assets/5d0b6c8b-4ab3-4a17-9627-54962a7bf739" />
+
 
 选做一：
 
