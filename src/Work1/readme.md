@@ -182,6 +182,8 @@ for v in vertices:
 
 ## 视频展示
 
+<img width="480" height="501" alt="实验二 必做" src="https://github.com/user-attachments/assets/bc211ca5-b947-4b34-96da-3337fd5f341e" />
+
 
 ## 选做内容
 
