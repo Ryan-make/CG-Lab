@@ -1,4 +1,4 @@
-# 光线追踪实验
+<img width="480" height="387" alt="实验五" src="https://github.com/user-attachments/assets/add4fb08-ec1f-47e8-b63c-d21a36c8b5f6" /># 光线追踪实验
 
 ## 📖 实验目标
 - 理解光线投射 (Ray Casting) 与光线追踪 (Ray Tracing) 的本质区别
@@ -59,10 +59,17 @@ python raytracing.py
 ## 📂 项目结构
 ```
 .
-├── raytracing.py    # 主程序
-├── README.md        # 项目说明
-└── requirements.txt # 依赖列表（可选）
+├── main.py    # 主程序
+└── README.md        # 项目说明
 ```
 
 ## 📝 效果展示
+必做：
+
+<img width="480" height="387" alt="实验五" src="https://github.com/user-attachments/assets/8d6e9204-e072-444d-8948-de4e73dcb9e6" />
+
+
+选做：
+
+<img width="480" height="387" alt="实验五 选做" src="https://github.com/user-attachments/assets/9f44ba2c-83c8-464e-b8d2-385de216ccff" />
 
