@@ -1,4 +1,4 @@
-# 可微光栅化与网格变形实验
+# 可微光栅化与网格变形实验（低难度）
 
 ## 📖 实验目标
 - 理解可微光栅化在处理离散网格边界时的数学近似方法
@@ -71,9 +71,9 @@ python deform_sphere2cow.py
 ## 📂 项目结构
 ```
 .
-├── deform_sphere2cow.py  # 主程序
-├── README.md             # 项目说明
-└── cow_mesh.obj          # 目标奶牛网格（或自动从库加载）
+├── main.py  # 主程序
+└── README.md             # 项目说明
 ```
 
 ## 📝 效果展示
+<img width="480" height="300" alt="实验六（低难度）" src="https://github.com/user-attachments/assets/b897d34d-b3a3-48ff-82b5-283df25aee2c" />
