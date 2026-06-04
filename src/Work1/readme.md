@@ -224,6 +224,7 @@ def get_rotation_y(angle):
 
 选做二：
 
+<img width="480" height="300" alt="实验二 选做二" src="https://github.com/user-attachments/assets/f2dd7fae-8cd0-4a56-8a88-0c567a706783" />
 
 
 ## 总结
