@@ -43,7 +43,7 @@ pip install taichi
 
 ### 2. 运行程序
 ```bash
-python phong.py
+python main.py
 ```
 
 ### 3. 交互方式
