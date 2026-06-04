@@ -65,9 +65,11 @@ python bezier.py
 ```
 .
 ├── bezier.py          # 主程序
-├── README.md          # 项目说明
-└── requirements.txt   # 依赖列表（可选）
+└── README.md          # 项目说明
+
 ```
+
+
 
 ## 📝 效果展示
 
@@ -84,5 +86,6 @@ python bezier.py
 选做二：
 
 
+<img width="480" height="506" alt="实验三 选做二" src="https://github.com/user-attachments/assets/b79fda87-fc3f-4f00-a458-64905e50a10b" />
 
 
