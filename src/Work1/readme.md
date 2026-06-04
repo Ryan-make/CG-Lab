@@ -41,12 +41,19 @@ $$
 将相机从位置 $\mathbf{eye} = (e_x, e_y, e_z)$ 平移至原点：
 
 $$ M_{\text{view}} = 
+
 \begin{bmatrix}
+
 1 & 0 & 0 & -e_x \\
+
 0 & 1 & 0 & -e_y \\
+
 0 & 0 & 1 & -e_z \\
+
 0 & 0 & 0 & 1
+
 \end{bmatrix}
+
 $$
 
 ### 投影变换（Projection Matrix）
@@ -58,22 +65,36 @@ $$
 
 **透视→正交矩阵**：
 $$ M_{p2o} = 
+
 \begin{bmatrix}
+
 n & 0 & 0 & 0 \\
+
 0 & n & 0 & 0 \\
+
 0 & 0 & n+f & -nf \\
+
 0 & 0 & 1 & 0
+
 \end{bmatrix}
+
 $$
 
 **正交投影矩阵**：
 $$ M_{ortho} = 
+
 \begin{bmatrix}
+
 \frac{1}{r} & 0 & 0 & 0 \\
+
 0 & \frac{1}{t} & 0 & 0 \\
+
 0 & 0 & \frac{2}{f-n} & -\frac{f+n}{f-n} \\
+
 0 & 0 & 0 & 1
+
 \end{bmatrix}
+
 $$
 
 最终投影矩阵：$M_{proj} = M_{ortho} \cdot M_{p2o}$。
