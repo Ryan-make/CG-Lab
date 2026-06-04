@@ -1,4 +1,4 @@
-<img width="480" height="501" alt="实验二 选做一" src="https://github.com/user-attachments/assets/8e2967c0-1f80-474b-8fa6-dc1bf1450bdf" /># 旋转与变换
+# 旋转与变换
 
 ## 项目简介
 本项目基于 **Taichi** 图形编程框架，实现三维空间中几何体的 **模型变换（Model）**、**视图变换（View）** 和 **投影变换（Projection）**（统称 MVP 变换），将三维物体渲染到二维屏幕上。  
