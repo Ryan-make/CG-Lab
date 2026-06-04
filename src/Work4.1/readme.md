@@ -1,4 +1,4 @@
-<img width="480" height="387" alt="实验五" src="https://github.com/user-attachments/assets/add4fb08-ec1f-47e8-b63c-d21a36c8b5f6" /># 光线追踪实验
+# 光线追踪实验
 
 ## 📖 实验目标
 - 理解光线投射 (Ray Casting) 与光线追踪 (Ray Tracing) 的本质区别
