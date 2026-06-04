@@ -42,7 +42,7 @@ pip install taichi
 
 ### 2. 运行程序
 ```bash
-python cloth_sim.py
+python main.py
 ```
 
 ### 3. 交互方式
@@ -63,8 +63,10 @@ python cloth_sim.py
 ## 📂 项目结构
 ```
 .
-├── cloth_sim.py     # 主程序
+├── main.py     # 主程序
 └── README.md        # 项目说明
 ```
 
 ## 📝 效果截图
+
+<img width="480" height="506" alt="实验七" src="https://github.com/user-attachments/assets/53d20689-c37b-4655-97ef-3112c7741b75" />
