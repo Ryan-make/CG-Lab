@@ -51,7 +51,7 @@ pip install pytorch3d
 
 ### 2. 运行程序
 ```bash
-python deform_sphere2cow.py
+python main.py
 ```
 
 ### 3. 输出
