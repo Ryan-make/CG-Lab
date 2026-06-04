@@ -78,6 +78,8 @@ python bezier.py
 
 选做一：
 
+<img width="480" height="506" alt="实验 选做一" src="https://github.com/user-attachments/assets/67ae7df9-5002-4b7b-8553-593a1da93f1b" />
+
 
 选做二：
 
