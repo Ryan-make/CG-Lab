@@ -69,9 +69,18 @@ python phong.py
 ```
 .
 ├── phong.py          # 主程序
-├── README.md         # 项目说明
-└── requirements.txt  # 依赖列表（可选）
+└── README.md         # 项目说明
 ```
 
 ## 📝 效果展示
+必做：
+
+<img width="480" height="387" alt="实验四" src="https://github.com/user-attachments/assets/cacaa661-fdd7-4ad5-8940-a4e5f78b29c9" />
+
+
+选做：
+
+<img width="480" height="387" alt="实验四 选做" src="https://github.com/user-attachments/assets/890d7e5b-74a7-443b-8201-570d7827d356" />
+
+
 
